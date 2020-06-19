@@ -3,32 +3,35 @@ extern crate serde;
 extern crate serde_yaml;
 
 use std::collections::BTreeMap;
-use structopt::StructOpt;
-use std::path::{PathBuf};
 use std::fs::File;
+use std::path::PathBuf;
+use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "digr", about = "an automated accessibility test runner based on rules")]
+#[structopt(
+    name = "digr",
+    about = "an automated accessibility test runner based on rules"
+)]
 struct Arguments {
-	#[structopt(short = "r", long = "rules", help = "Rules folder")]
-	rules: PathBuf,
+    #[structopt(short = "r", long = "rules", help = "Rules folder")]
+    rules: PathBuf,
 
-	#[structopt(short = "u", long = "url", help = "Url to test")]
-	url: String,
+    #[structopt(short = "u", long = "url", help = "Url to test")]
+    url: String,
 }
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct TestValue {
     name: String,
-    r#if: Option<Vec<String>>, 
+    r#if: Option<Vec<String>>,
     r#let: Option<String>,
     links: Option<String>,
     ifNotEquals: Option<Vec<String>>,
     ifNotNull: Option<String>,
     assertNotGreaterThan: Option<Vec<String>>,
     assertNotEquals: Option<Vec<String>>,
-    assertNotNull: Option<String>
+    assertNotNull: Option<String>,
 }
 
 #[allow(non_snake_case)]
@@ -36,7 +39,7 @@ struct TestValue {
 struct ValidationValue {
     name: String,
     case: String,
-    assert: String
+    assert: String,
 }
 
 #[allow(non_snake_case)]
@@ -44,25 +47,25 @@ struct ValidationValue {
 struct RuleSpec {
     name: String,
     meta: Option<BTreeMap<String, String>>,
-	on: Vec<String>,
-	#[serde(default="default_hidden")]
+    on: Vec<String>,
+    #[serde(default = "default_hidden")]
     includeHidden: bool,
     tests: Vec<TestValue>,
-    validation: Vec<ValidationValue>
+    validation: Vec<ValidationValue>,
 }
 
 fn default_hidden() -> bool {
-	false
+    false
 }
 
 fn main() -> Result<(), serde_yaml::Error> {
-	let opts = Arguments::from_args();
-	println!("{:?}", opts);
-  
+    let opts = Arguments::from_args();
+    println!("{:?}", opts);
+
     let file = File::open(opts.rules).expect("Unable to open file");
 
-   let s: RuleSpec = serde_yaml::from_reader(file).unwrap();
+    let s: RuleSpec = serde_yaml::from_reader(file).unwrap();
 
-	println!("{:?}", s);
-		Ok(())
+    println!("{:?}", s);
+    Ok(())
 }
