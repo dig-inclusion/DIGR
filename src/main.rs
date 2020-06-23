@@ -6,6 +6,13 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::path::PathBuf;
 use structopt::StructOpt;
+use smol;
+use surf;
+use anyhow::{Error};
+use scraper::{Html, Selector};
+
+// use std::{thread, time};
+
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -17,7 +24,15 @@ struct Arguments {
     rules: PathBuf,
 
     #[structopt(short = "u", long = "url", help = "Url to test")]
-    url: String,
+	url: String,
+
+    #[structopt(short = "d", long = "depth", help = " Depth or resources to follow on page", default_value = "0")]	
+	depth: u8,
+}
+
+struct TestType {
+    op: String,
+    values: Option<Vec<String>>,
 }
 
 #[allow(non_snake_case)]
@@ -51,21 +66,54 @@ struct RuleSpec {
     #[serde(default = "default_hidden")]
     includeHidden: bool,
     tests: Vec<TestValue>,
-    validation: Vec<ValidationValue>,
+    validations: Vec<ValidationValue>,
 }
 
 fn default_hidden() -> bool {
     false
 }
 
-fn main() -> Result<(), serde_yaml::Error> {
+fn main() {
     let opts = Arguments::from_args();
-    println!("{:?}", opts);
+    let site_url: &str = &opts.url;
+
+    // println!("{} \n {:?}", site_url, opts);
 
     let file = File::open(opts.rules).expect("Unable to open file");
 
-    let s: RuleSpec = serde_yaml::from_reader(file).unwrap();
+    let spec: RuleSpec = serde_yaml::from_reader(file).unwrap();
 
-    println!("{:?}", s);
-    Ok(())
+	// println!("{:?}", spec);
+	
+	smol::run(async {
+
+		let body = surf::get(site_url)
+			.recv_string()
+			.await
+            .map_err(Error::msg);
+
+		// println!("Site html: {:?}", body);
+
+		let b = match body {
+			Ok(html) => html,
+			Err(error) => panic!("Problem accessing the url: {:?}", error),
+		};
+
+		let page_slice: &str = &b;
+        let fragment = Html::parse_fragment(page_slice);
+        
+        for tag in spec.on.iter() {
+
+            // println!("{:?}", e);
+
+            let selector = Selector::parse(tag).unwrap();
+
+            for element in fragment.select(&selector) {
+                println!("{:?}", element);
+                
+            }
+
+        }
+	});
+
 }
