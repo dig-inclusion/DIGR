@@ -1,0 +1,12 @@
+[package]
+name = "non-none-fields"
+version = "0.1.0"
+authors = ["the DIGR authors"]
+edition = "2018"
+
+[dependencies]
+syn = "1.0.33"
+quote = "1.0.7"
+
+[lib]
+proc-macro = true

@@ -40,28 +40,6 @@ struct TestType {
     values: Option<Vec<String>>,
 }
 
-#[proc_macro_derive(NotNoneFields)]
-pub fn not_none_fields(input: TokenStream) -> TokenStream {
-    // Parse the input tokens into a syntax tree
-    let input = parse_macro_input!(input as DeriveInput);
-
-    let not_none_field_names = input.fields.iter().for_each(|field| {
-      if field.ty != syn::TypeNever { field.ident}
-    })
-
-    // Build the output
-    let output = quote! {
-        impl #name {
-            pub fn not_none_fields() -> Vec<str> {
-                #not_none_field_names
-            }
-        }
-    };
-
-    // Hand the output tokens back to the compiler
-    TokenStream::from(output)
-}
-
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct TestValue {
