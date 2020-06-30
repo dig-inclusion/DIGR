@@ -14,4 +14,4 @@ surf = "1.0.3"
 syn = "1.0.33"
 quote = "1.0.7"
 anyhow = "1.0.31"
-non-none-fields = { path = "./non-none-fields" }
+non_none_fields = { path = "./non_none_fields" }

@@ -1,5 +1,5 @@
 [package]
-name = "non-none-fields"
+name = "non_none_fields"
 version = "0.1.0"
 authors = ["the DIGR authors"]
 edition = "2018"

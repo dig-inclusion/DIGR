@@ -10,11 +10,7 @@ use smol;
 use surf;
 use anyhow::{Error};
 use scraper::{Html, Selector};
-
-use proc_macro::TokenStream;
-use quote::quote;
-use syn::{parse_macro_input, DeriveInput, GenericArgument, PathArguments, Type, TypeNever};
-
+use non_none_fields;
 
 // use std::{thread, time};
 
@@ -86,7 +82,7 @@ fn main() {
 
     let file = File::open(opts.rules).expect("Unable to open file");
 
-    let spec: RuleSpec = serde_yaml::from_reader(file).unwrap();
+    let spec: RuleSpec = serde_yaml::from_reader(file).expect("There was an error parsing RuleSpec");
 
 	// println!("{:?}", spec);
 	
