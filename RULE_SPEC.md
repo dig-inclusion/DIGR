@@ -102,10 +102,12 @@ tests:
     assertNotEquals: ["$attributes[aria-label]", ""]
 
   - name: arialabelledby
+    let:
+      foundIds: $count{*[id="$attributes[aria-labelledby]"]}
     ifNotEquals: [$element, img] #not sure on this?
     assertNotNull: $attributes[aria-labelledby]
     assertNotEquals: ["$attributes[aria-labelledby]", ""]
-    #need way to check labelledby target exists
+    assertEquals: [$foundIds, 1]
 
 #Required
 #Tests to validate the rule, the rule can test itself against itself
