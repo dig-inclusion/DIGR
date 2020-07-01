@@ -3,6 +3,7 @@ name = "digr"
 version = "0.1.0"
 authors = ["the DIGR authors"]
 edition = "2018"
+include = ["Cargo.toml", "src/**/*.rs", "tests/**/*.rs", "README.md"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -11,7 +12,7 @@ structopt = "0.3.15"
 scraper = "0.12.0"
 smol = "0.1.18"
 surf = "1.0.3"
-syn = "1.0.33"
+syn = { version = "1.0.33", features = ["proc-macro"] }
 quote = "1.0.7"
 anyhow = "1.0.31"
 non_none_fields = { path = "./non_none_fields" }

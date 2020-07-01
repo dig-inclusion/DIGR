@@ -3,6 +3,8 @@ name = "non_none_fields"
 version = "0.1.0"
 authors = ["the DIGR authors"]
 edition = "2018"
+include = ["Cargo.toml", "src/**/*.rs", "tests/**/*.rs"]
+
 
 [dependencies]
 syn = "1.0.33"
