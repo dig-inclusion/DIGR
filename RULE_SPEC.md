@@ -227,3 +227,47 @@ validation:
     case: <p alt="">Irrelevant example</p>
     assert: na
 ```
+
+## Aron's Example:
+
+```
+### Non-embeded HTML document human language is determined programmatically
+
+#### Rule type: atomic
+
+#### Description
+
+This rule checks that each non-embeded HTML document has a default human language specified on the [html element](https://html.spec.whatwg.org/multipage/semantics.html#the-html-element) by using the [lang attribute](https://html.spec.whatwg.org/multipage/dom.html#the-lang-and-xml:lang-attributes) with the value corresponding with a valid [primary language tag from the language tag registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
+
+### Accessibility requirements mapping (essentially accessibility metadata)
+
+- [Language of Page 3.1.1](https://www.w3.org/TR/WCAG21/#language-of-page)
+- [Element with lang attribute has valid language tag](https://act-rules.github.io/rules/de46e4#valid-language-tag)
+
+
+### Scope (string | array<string>, Required)
+
+This rule applies to a non-embeded html element.
+
+    TEST- this would rely on atomic rules
+
+- name: html element has a language attribute
+    let: #variables to use for this test
+      html: getElementsByTagName(html) / or whatever else is more suitable
+    assertNotGreaterThan: [$html, 1]
+
+
+validation:
+  - name: has lang attribute and the attribute value is valid
+    case: |
+
+        <html lang="cy" ></html>
+
+    assert: pass
+
+  - name: Differentiated
+    case: |
+      <html lang="" ></html>
+    <html></html>
+    assert: pass
+```
