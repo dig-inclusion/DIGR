@@ -7,14 +7,22 @@
 The name of the test, simple as possible.
 eg) Img has an alt and it is not blank
 
-### meta (Object, Optional)
+### Rule type
 
-Optional meta data for the test, included in the output. Can be used to attach any static variables to the output for mapping to other software etc.
+Atomic/ composite- this will help use re-use and organise rules and.
 
-### on (string | array<string>, Required)
+### Description
+
+This is a rich description displayed if the user needs more info.
+
+### Accessibility requirements mapping
+
+Mapping to accessibility requirements, WCGA failure examples, DIG rules, ACT rules, etc.
+
+### SCOPE (string | array<string>, Required)
 
 Which element to apply this ruleset to possible values are tag name or selector
-eg) `img` or `*[role='img']` or `a[aria-label]`
+eg) `img` or `*[role='img']` or `a[aria-label]` This would also link to the spec, eg. HTML living standard.
 
 ### includeHidden (boolean, Optional)
 
