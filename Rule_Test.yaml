@@ -1,0 +1,38 @@
+name: Autocomplete attribute has valid value
+meta:
+  act-ref: 73f2c2
+
+on: [input, select, textarea, "*[role='textbox']", ]
+
+includeHidden: false
+
+tests:
+    - name: has_autocomplete
+    assertNotNull: $attributes[autocomplete]
+
+    - name: has_correct_field_name
+    let: 
+        values: ["name" , "honorific-prefix", "given-name"]
+    ifNotNull: $attributes[autocompolete] 
+    assertIncludes: [$values, $attributes[autocomplete]];
+
+    - name: check type text
+    let:
+        values: [text, name]
+    ifEquals: [$attributes[type], text]
+    assertIncludes: [$values, $attributes[autocomplete]]  
+
+validation:
+  - name: Incorrect autocomplete value
+    case: |
+      <div>
+        <input autocomplete="names"/>
+      </div>
+    assert: fail
+    
+  - name: Correct autocomplete value
+    case: |
+      <div>
+        <input autocomplete="name"/>
+      </div>
+    assert: pass
