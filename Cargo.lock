@@ -215,14 +215,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "non_none_fields",
- "quote",
  "scraper",
  "serde",
  "serde_yaml",
  "smol",
  "structopt",
  "surf",
- "syn",
+ "trybuild",
 ]
 
 [[package]]
@@ -425,6 +424,12 @@ dependencies = [
  "libc",
  "wasi",
 ]
+
+[[package]]
+name = "glob"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
 name = "heck"
@@ -1198,6 +1203,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "termcolor"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb6bfa289a4d7c5766392812c0a1f4c1ba45afa1ad47803c11e1f407d846d75f"
+dependencies = [
+ "winapi-util",
+]
+
+[[package]]
 name = "textwrap"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1227,6 +1241,29 @@ dependencies = [
  "bytes",
  "futures",
  "log",
+]
+
+[[package]]
+name = "toml"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffc92d160b1eef40665be3a05630d003936a3bc7da7421277846c2613e92c71a"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "trybuild"
+version = "1.0.30"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbe777c4e2060f44d83892be1189f96200be8ed3d99569d5c2d5ee26e62c0ea9"
+dependencies = [
+ "glob",
+ "lazy_static",
+ "serde",
+ "serde_json",
+ "termcolor",
+ "toml",
 ]
 
 [[package]]
@@ -1425,6 +1462,15 @@ name = "winapi-i686-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
+
+[[package]]
+name = "winapi-util"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70ec6ce85bb158151cae5e5c87f95a8e97d2c0c4b001223f33a334e3ce5de178"
+dependencies = [
+ "winapi",
+]
 
 [[package]]
 name = "winapi-x86_64-pc-windows-gnu"
