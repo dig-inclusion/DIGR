@@ -30,14 +30,14 @@ Simple name of test for output
 
 #### if (Optional)
 looping through, runs this test to see if this rule applies, `if` alone is `ifEquals`
-variants: ifEquals, ifNotEquals, ifGreaterThan, ifLessThan, ifGreaterThanOrEquals, ifLessThanOrEquals, ifNull, ifNotNull
+variants: ifEquals, ifNotEquals, ifGreaterThan, ifLessThan, ifGreaterThanOrEquals, ifLessThanOrEquals, ifNull, ifNotNull, ifIncludes
 
 #### let (object, Optional)
 variables to assign for this test, for keeping things tidy
 
 #### assert
 The assertion to make to see if the element passes this test, `assert` alone is `assertEquals`
-variants: assertEquals, assertNotEquals, assertGreaterThan, assertLessThan, assertGreaterThanOrEquals, assertLessThanOrEquals, assertNull, assertNotNull
+variants: assertEquals, assertNotEquals, assertGreaterThan, assertLessThan, assertGreaterThanOrEquals, assertLessThanOrEquals, assertNull, assertNotNull, assertIncludes
 
 ### validation (array<object>, Optional)
 Rule can be used to test / validate itself
