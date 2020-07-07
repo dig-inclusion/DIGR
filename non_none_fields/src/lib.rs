@@ -1,62 +1,57 @@
-use proc_macro::{TokenStream};
-use quote::{quote};
+extern crate proc_macro;
+
+use proc_macro::TokenStream;
+use quote::quote;
 use syn::Path;
 use syn;
 use syn::{parse_macro_input, Type};
 
-fn path_is_not_none(path: &Path) -> bool {
-        path.leading_colon.is_none()
-        && path.segments.len() == 1
-        && path.segments.iter().next().unwrap().ident != "None"
-}
+#[proc_macro_derive(NonNoneFields)]
+pub fn derive_non_none_fields(input: TokenStream) -> TokenStream {
 
-#[proc_macro_derive(NotNoneFields)]
-pub fn non_none_fields(input: TokenStream) -> TokenStream {
-    // Parse the input tokens into a syntax tree
-    let input = parse_macro_input!(input as &syn::ItemStruct);
-    // let item: syn::Item = syn::parse(input).expect("failed to parse input");
-
+    let input = parse_macro_input!(input as syn::ItemStruct);
 
     let name = &input.ident;
 
-    // let not_none_field_names = input.fields.iter().for_each(|field| {
-    //   if field.ty != TypeNever { field.ident }
-    // });
-
-    // impl ToTokens for Vec {
-    //     fn to_tokens(&self, tokens: &mut TokenStream) {
-    //         let d = self.0.iter().map(|datum| datum.0);
-    //         tokens.extend(quote! {
-    //             Data(<[Datum]>::into_vec(Box::new([ #( Datum(#d) ),* ])))
-    //         })
-    //     }
-    // }
-    // let not_none_field_names: Vec<String>;
-    // TokenStream::from_iter(vec![
-    //     TokenTree::from(Ident::new("let", span)),
-    //     TokenTree::from(Ident::new("field_names", span)),
-    // ]);
-    let mut field_names: Vec<String> = Vec::new();
+    let mut field_names = Vec::new();
     for field in input.fields.iter() {
-        // if field.ty != None { not_none_field_names.push(stringify!(field.ident).to_string()) }
 
         match &field.ty {
-            Type::Path(typepath) if typepath.qself.is_none() && path_is_not_none(&typepath.path) => {
-                field_names.push(stringify!(field.ident).to_string());
+            Type::Path(typepath) if typepath.qself.is_none() => {
+                let fname = field.ident.as_ref().expect("tuple structs are not supported").to_string();
+
+                if path_is_option(&typepath.path) {
+                    let ident = &field.ident;
+                    field_names.push(quote! {
+                        if self.#ident.is_some() {
+                            v.push(#fname);
+                        }
+                    });
+                } else {
+                    field_names.push(quote! {
+                        v.push(#fname);
+                    });
+                }
             },
             _ => (),
         }
     }
 
-    // Build the output
     let output = quote! {
         impl #name {
-            pub fn not_none_fields() -> [String]{
-                #(field_names)
+            pub fn non_none_fields(&self) -> Vec<&'static str>{
+                let mut v = vec![];
+                #(#field_names)*
+                v
             }
         }
     };
 
-    // Hand the output tokens back to the compiler
-    TokenStream::from(output)
+    proc_macro::TokenStream::from(output)
+}
+
+fn path_is_option(path: &Path) -> bool {
+    path.leading_colon.is_none()
+    && path.segments.len() == 1
+    && path.segments.iter().next().unwrap().ident == "Option"
 }

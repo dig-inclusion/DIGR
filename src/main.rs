@@ -10,7 +10,7 @@ use smol;
 use surf;
 use anyhow::{Error};
 use scraper::{Html, Selector};
-use non_none_fields;
+// use non_none_fields;
 
 // use std::{thread, time};
 
@@ -31,10 +31,10 @@ struct Arguments {
 	depth: u8,
 }
 
-struct TestType {
-    op: String,
-    values: Option<Vec<String>>,
-}
+// struct TestType {
+//     op: String,
+//     values: Option<Vec<String>>,
+// }
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
