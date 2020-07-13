@@ -25,14 +25,14 @@ const CURR_VARIABLE:&str = "$element";
 //     fn assert_not_null(str, String) -> str;
 
 
-pub fn test_equals(current_value: &String, expected_value: &String, elem: &String) -> Option<()> {
+pub fn test_equals(current_value: &String, expected_value: &String, elem: &String) -> Option<bool> {
 
     assert!(current_value == CURR_VARIABLE, "Unexpected test case element {}", current_value);
     
     if elem == expected_value {
-        return Some(());
+        return Some(true);
     }
-    return None;
+    return Some(false);
 }
 
 

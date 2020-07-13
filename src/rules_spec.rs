@@ -87,22 +87,20 @@ impl RuleSpec {
     
     }
 
-    fn test_assertions__ops(self, value: &str, assertion_index: usize, elem: &String) -> Option<()> {
+    fn test_assertions__ops(self, value: &str, assertion_index: usize, elem: &String) -> Option<bool> {
         match value {
             "assert" => {
                 let ref test_case = &self.tests[assertion_index];
                 let ref assertion_value = test_case.assert.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
-
-                test_fns::test_equals(&current_value, &expected_value, &elem){
+                test_fns::test_equals(&current_value, &expected_value, &elem)
             },
             "assertEquals" => {
                 let ref test_case = &self.tests[assertion_index];
                 let ref assertion_value = test_case.assertEquals.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
-
                 test_fns::test_equals(&current_value, &expected_value, &elem);
             },
             "assertNotEquals" => {
@@ -110,9 +108,8 @@ impl RuleSpec {
                 let ref assertion_value = test_case.assertNotEquals.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
-
                 match test_fns::test_equals(&current_value, &expected_value, &elem) {
-                    Some(()) => None,
+                    Some(true) => Some(false),
                     None => Some(())
                 }
             },
@@ -121,7 +118,6 @@ impl RuleSpec {
                 let ref assertion_value = test_case.assertGreaterThan.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
-
                 test_fns::test_greater_than(&current_value, &expected_value, &elem);
             },
             "assertLessThan" => {
@@ -137,8 +133,7 @@ impl RuleSpec {
                             None => Some(())
                         }
                     }
-                }
-                
+                }  
             },
             "assertGreaterThanOrEquals" => {
                 let ref test_case = &self.tests[assertion_index];
@@ -149,7 +144,7 @@ impl RuleSpec {
                     Some => {
                         test_fns::test_greater_than(&current_value, &expected_value, &elem) {
                             Some(()) => Some(()),
-                            None => Some()
+                            None => Some(())
                         }
                     },
                     None => {
@@ -158,16 +153,55 @@ impl RuleSpec {
                             None => None
                         }
                     },
-                }
-                
+                }                
             },
             "assertNotGreaterThan" => {
                 let ref test_case = &self.tests[assertion_index];
                 let ref assertion_value = test_case.assertNotGreaterThan.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
+                match test_fns::test_equals(&current_value, &expected_value, &elem) {
+                    Some => {
+                        test_fns::test_greater_than(&current_value, &expected_value, &elem) {
+                            Some(()) => None,
+                            None => Some(())
+                        }
+                    },
+                    None => {
+                        test_fns::test_greater_than(&current_value, &expected_value, &elem) {
+                            Some(()) => None,
+                            None => Some(())
+                        }
+                    },
+                }            
+            },
+            "assertLessThanOrEquals" => {
+                let ref test_case = &self.tests[assertion_index];
+                let ref assertion_value = test_case.assertGreaterThanOrEquals.as_ref().unwrap();
+                let ref current_value = &assertion_value[0];
+                let ref expected_value = &assertion_value[1];
+                match test_fns::test_equals(&current_value, &expected_value, &elem) {
+                    Some => {
+                        test_fns::test_greater_than(&current_value, &expected_value, &elem) {
+                            Some(()) => None,
+                            None => Some(())
+                        }
+                    },
+                    None => {
+                        test_fns::test_greater_than(&current_value, &expected_value, &elem) {
+                            Some(()) => None,
+                            None => Some(())
+                        }
+                    },
+                }                
+            },
+            "assertNull" => {
+                let ref test_case = &self.tests[assertion_index];
+                let ref assertion_value = test_case.assert.as_ref().unwrap();
+                let ref current_value = &assertion_value[0];
+                let ref expected_value = &assertion_value[1];
 
-                test_fns::test_greater_than(&current_value, &expected_value, &elem);
+                test_fns::test_equals(&current_value, &expected_value, &elem)
             },
             _ => None
         }
