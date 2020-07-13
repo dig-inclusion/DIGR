@@ -2,6 +2,7 @@
 extern crate serde;
 extern crate serde_yaml;
 
+use std::string::String;
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::path::PathBuf;
@@ -11,6 +12,8 @@ use surf;
 use anyhow::{Error};
 use scraper::{Html, Selector};
 use non_none_fields::*;
+
+mod test_fns;
 
 // use std::{thread, time};
 
@@ -30,11 +33,6 @@ struct Arguments {
     #[structopt(short = "d", long = "depth", help = " Depth or resources to follow on page", default_value = "0")]	
 	depth: u8,
 }
-
-// struct TestType {
-//     op: String,
-//     values: Option<Vec<String>>,
-// }
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize, NonNoneFields)]
@@ -86,6 +84,42 @@ struct RuleSpec {
     validations: Vec<ValidationValue>,
 }
 
+impl RuleSpec {
+    fn test_rules_ops(self, elem: &String) {
+
+        for iter in self.tests.iter().zip(self.validations.iter()) {
+
+            let (test_case, validation) = iter;
+            let fields = test_case.non_none_fields();
+
+            for &field in fields.iter() {
+
+                println!("{}", field);
+            
+                match field {
+                    "if" => { 
+                        
+                        let rule_value = test_case.r#if.as_ref().unwrap();
+
+                        let ref current_value = &rule_value[0];
+                        let ref expected_value = &rule_value[1];
+
+                        match test_fns::if_or_if_equals(&current_value, &expected_value, &elem){
+                            Some(()) => {
+                                let ref assertion_value = fields[2];
+                            }
+                            None => {}
+                        }
+
+                        
+                    },
+                    _ => continue,
+                }
+            }
+        }
+    
+    }
+}
 fn default_hidden() -> bool {
     false
 }
@@ -94,13 +128,16 @@ fn default_hidden() -> bool {
 fn tag_ops(fragment: &Html, tag: &std::string::String) {
 
     let selector = Selector::parse(&tag).expect("Invalid CSS selector.");
-    for element in fragment.select(&selector) {
+    // for element in fragment.select(&selector) {
 
-        println!("{:?}", element.value().name);
+    //     println!("{:?}", element.value().name);
 
         
-    }
-
+    // }
+    fragment.select(&selector).for_each(|element| { 
+            let name = &element.value().name;
+            print!("{:?}", name);
+        });
 }
 
 //
@@ -118,14 +155,19 @@ fn attr_ops(index: usize, fragment: &Html, tag: &std::string::String) {
     let attr_name: &str = &l;
 
     let selector = Selector::parse(&tg).expect("Invalid CSS selector.");
-    for element in fragment.select(&selector) {
+    // for element in fragment.select(&selector) {
 
-        for elem in &element.value().attr(attr_name) {
-            println!("{:?}", elem);
+    //     for elem in &element.value().attr(attr_name) {
+    //         println!("{:?}", elem);
 
-        }
+    //     }
         
-    }
+    // }
+
+    fragment.select(&selector).for_each(|element| { 
+            let elem = element.value().attr(attr_name).unwrap();
+            print!("{:?}", elem);
+        });
 }
 
 fn main() {
@@ -143,8 +185,7 @@ fn main() {
 	smol::run(async {
 
 		let body = surf::get(site_url)
-			.recv_string()
-			.await
+			.recv_string().await
             .map_err(Error::msg);
 
 		// println!("Site html: {:?}", body);
@@ -170,3 +211,5 @@ fn main() {
 	});
 
 }
+
+
