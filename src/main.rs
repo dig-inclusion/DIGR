@@ -1,9 +1,4 @@
-#[macro_use]
-extern crate serde;
-extern crate serde_yaml;
-
 use std::string::String;
-use std::collections::BTreeMap;
 use std::fs::File;
 use std::path::PathBuf;
 use structopt::StructOpt;
@@ -11,12 +6,8 @@ use smol;
 use surf;
 use anyhow::{Error};
 use scraper::{Html, Selector};
-use non_none_fields::*;
 
 mod test_fns;
-
-// use std::{thread, time};
-
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -34,95 +25,6 @@ struct Arguments {
 	depth: u8,
 }
 
-#[allow(non_snake_case)]
-#[derive(Debug, Deserialize, NonNoneFields)]
-struct TestValue {
-    name: String,
-    r#if: Option<Vec<String>>,
-    r#let: Option<String>,
-    links: Option<String>,
-    ifEquals: Option<Vec<String>>,
-    ifNotEquals: Option<Vec<String>>,
-    ifGreaterThan: Option<Vec<String>>,
-    ifLessThan: Option<Vec<String>>,
-    ifGreaterThanOrEquals: Option<Vec<String>>,
-    ifLessThanOrEquals: Option<Vec<String>>,
-    ifNull: Option<String>,
-    ifNotNull: Option<String>,
-    ifIncludes: Option<String>,
-
-    assert: Option<Vec<String>>,
-    assertEquals: Option<Vec<String>>,
-    assertGreaterThan: Option<Vec<String>>,
-    assertLessThan: Option<Vec<String>>,
-    assertGreaterThanOrEquals: Option<Vec<String>>,
-    assertLessThanOrEquals: Option<Vec<String>>,
-    assertNull: Option<String>,
-
-    assertNotGreaterThan: Option<Vec<String>>,
-    assertNotEquals: Option<Vec<String>>,
-    assertNotNull: Option<String>,
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug, Deserialize, NonNoneFields)]
-struct ValidationValue {
-    name: String,
-    case: String,
-    assert: String,
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug, Deserialize, NonNoneFields)]
-struct RuleSpec {
-    name: String,
-    meta: Option<BTreeMap<String, String>>,
-    on: Vec<String>,
-    #[serde(default = "default_hidden")]
-    includeHidden: bool,
-    tests: Vec<TestValue>,
-    validations: Vec<ValidationValue>,
-}
-
-impl RuleSpec {
-    fn test_rules_ops(self, elem: &String) {
-
-        for iter in self.tests.iter().zip(self.validations.iter()) {
-
-            let (test_case, validation) = iter;
-            let fields = test_case.non_none_fields();
-
-            for &field in fields.iter() {
-
-                println!("{}", field);
-            
-                match field {
-                    "if" => { 
-                        
-                        let rule_value = test_case.r#if.as_ref().unwrap();
-
-                        let ref current_value = &rule_value[0];
-                        let ref expected_value = &rule_value[1];
-
-                        match test_fns::if_or_if_equals(&current_value, &expected_value, &elem){
-                            Some(()) => {
-                                let ref assertion_value = fields[2];
-                            }
-                            None => {}
-                        }
-
-                        
-                    },
-                    _ => continue,
-                }
-            }
-        }
-    
-    }
-}
-fn default_hidden() -> bool {
-    false
-}
 
 // Function for html tags operations
 fn tag_ops(fragment: &Html, tag: &std::string::String) {

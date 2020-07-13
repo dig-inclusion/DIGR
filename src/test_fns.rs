@@ -2,7 +2,7 @@ use std::string::String;
 
 const CURR_VARIABLE:&str = "$element";
 
-    // fn if_or_if_equals(current_value: &str, expected_value: String, elem: String) -> &str;
+    // fn test_equals(current_value: &str, expected_value: String, elem: String) -> &str;
 //     fn if_not_equals(str, String) -> str;
 
 //     fn if_greater_than(str, String) -> str;
@@ -25,7 +25,7 @@ const CURR_VARIABLE:&str = "$element";
 //     fn assert_not_null(str, String) -> str;
 
 
-pub fn if_or_if_equals(current_value: &String, expected_value: &String, elem: &String) -> Option<()> {
+pub fn test_equals(current_value: &String, expected_value: &String, elem: &String) -> Option<()> {
 
     assert!(current_value == CURR_VARIABLE, "Unexpected test case element {}", current_value);
     
@@ -36,7 +36,7 @@ pub fn if_or_if_equals(current_value: &String, expected_value: &String, elem: &S
 }
 
 
-pub fn if_greater_than(current_value: &String, expected_value: &String, elem: &String) ->  Option<()> {
+pub fn test_greater_than(current_value: &String, expected_value: &String, elem: &String) ->  Option<()> {
 
     assert!(current_value == CURR_VARIABLE, "Unexpected test case element {}", current_value);
     
@@ -46,4 +46,12 @@ pub fn if_greater_than(current_value: &String, expected_value: &String, elem: &S
     return None;
 }
 
+// pub fn assert_or_assert_equals(current_value: &String, expected_value: &String, elem: &String) ->  Option<()> {
 
+//     assert!(current_value == CURR_VARIABLE, "Unexpected test case element {}", current_value);
+    
+//     if elem > expected_value {
+//         return Some(());
+//     }
+//     return None;
+// }
