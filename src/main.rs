@@ -6,7 +6,7 @@ use smol;
 use surf;
 use anyhow::{Error};
 use scraper::{Html, Selector};
-
+mod rules_spec;
 mod test_fns;
 
 #[derive(StructOpt, Debug)]
