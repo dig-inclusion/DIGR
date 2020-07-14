@@ -41,7 +41,7 @@ pub fn test_greater_than(
     current_value: &String,
     expected_value: &String,
     elem: &String,
-) -> Option<()> {
+) -> Option<bool> {
     assert_eq!(
         current_value, CURR_VARIABLE,
         "Unexpected test case element {}",
@@ -49,16 +49,16 @@ pub fn test_greater_than(
     );
 
     if elem > expected_value {
-        return Some(());
+        return Some(true);
     }
-    return None;
+    return Some(false);
 }
 
 pub fn test_less_than(
     current_value: &String,
     expected_value: &String,
     elem: &String,
-) -> Option<()> {
+) -> Option<bool> {
     assert!(
         current_value == CURR_VARIABLE,
         "Unexpected test case element {}",
@@ -66,9 +66,9 @@ pub fn test_less_than(
     );
 
     if elem < expected_value {
-        return Some(());
+        return Some(true);
     }
-    return None;
+    return Some(false);
 }
 
 

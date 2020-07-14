@@ -1,49 +1,49 @@
-#[macro_use]
-extern crate serde;
-extern crate serde_yaml;
-
-use anyhow::Error;
+use crate::test_fns;
 use non_none_fields::*;
-use scraper::{Html, Selector};
-use smol;
+use serde::Deserialize;
 use std::collections::HashMap;
-use std::fs::File;
-use std::path::PathBuf;
 use std::string::String;
-use structopt::StructOpt;
-use surf;
 
-use crate:: test_fns;
+trait Digr_Test {
+    fn rules_ops(&self, elem: &String);
+    fn assertions_ops(
+        &self,
+        assertion_value: &str,
+        assertion_index: usize,
+        elem: &String,
+    ) -> Option<bool>;
+    fn find_global_var(&self, variable_name: &str, index: usize) -> Option<String>;
+}
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize, NonNoneFields)]
 struct TestValue {
-    name: String,
-    r#if: Option<Vec<String>>,
-    r#let: Option<HashMap<String, String>>,
-    links: Option<String>,
-    ifEquals: Option<Vec<String>>,
-    ifNotEquals: Option<Vec<String>>,
-    ifGreaterThan: Option<Vec<String>>,
-    ifLessThan: Option<Vec<String>>,
-    ifGreaterThanOrEquals: Option<Vec<String>>,
-    ifLessThanOrEquals: Option<Vec<String>>,
-    ifNull: Option<String>,
-    ifNotNull: Option<String>,
-    ifIncludes: Option<String>,
+    pub name: String,
+    pub r#if: Option<Vec<String>>,
+    pub r#let: Option<HashMap<String, String>>,
+    pub links: Option<String>,
+    pub ifEquals: Option<Vec<String>>,
+    pub ifNotEquals: Option<Vec<String>>,
+    pub ifGreaterThan: Option<Vec<String>>,
+    pub ifLessThan: Option<Vec<String>>,
+    pub ifGreaterThanOrEquals: Option<Vec<String>>,
+    pub ifLessThanOrEquals: Option<Vec<String>>,
+    pub ifNull: Option<String>,
+    pub ifNotNull: Option<String>,
+    pub ifIncludes: Option<String>,
 
-    assert: Option<Vec<String>>,
-    assertEquals: Option<Vec<String>>,
-    assertGreaterThan: Option<Vec<String>>,
-    assertLessThan: Option<Vec<String>>,
-    assertGreaterThanOrEquals: Option<Vec<String>>,
-    assertLessThanOrEquals: Option<Vec<String>>,
-    assertNull: Option<String>,
-
-    assertNotGreaterThan: Option<Vec<String>>,
-    assertNotEquals: Option<Vec<String>>,
-    assertNotNull: Option<String>,
-}
+    pub assert: Option<Vec<String>>,
+    pub assertEquals: Option<Vec<String>>,
+    pub assertGreaterThan: Option<Vec<String>>,
+    pub assertLessThan: Option<Vec<String>>,
+    pub assertGreaterThanOrEquals: Option<Vec<String>>,
+    pub assertLessThanOrEquals: Option<Vec<String>>,
+    pub assertNull: Option<String>,
+ 
+    pub assertNotGreaterThan: Option<Vec<String>>,
+    pub assertNotEquals: Option<Vec<String>>,
+    pub assertNotNull: Option<String>,
+} 
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize, NonNoneFields)]
@@ -59,14 +59,14 @@ pub struct RuleSpec {
     pub name: String,
     pub meta: Option<HashMap<String, String>>,
     pub on: Vec<String>,
-        #[serde(default = "default_hidden")]
+    #[serde(default = "default_hidden")]
     pub includeHidden: bool,
     pub tests: Vec<TestValue>,
     pub validations: Vec<ValidationValue>,
 }
 
-impl RuleSpec {
-    fn test_rules_ops(self, elem: &String) {
+impl Digr_Test for RuleSpec {
+    fn rules_ops(&self, elem: &String) {
         for iter in self.tests.iter().zip(self.validations.iter()) {
             let (test_case, validation) = iter;
             let fields = test_case.non_none_fields();
@@ -75,34 +75,28 @@ impl RuleSpec {
                 println!("{}", field);
 
                 match field {
-                    "if" => {   
+                    "if" => {
                         let rule_value = test_case.r#if.as_ref().unwrap();
                         let ref current_value = &rule_value[0];
                         let ref expected_value = &rule_value[1];
-                        if Some(true) = test_fns::test_equals(&current_value, &expected_value, &elem)
+                        if Some(true) =
+                            test_fns::test_equals(&current_value, &expected_value, &elem)
                         {
                             let ref assertion_value = fields[2];
 
-                            match self.test_assertions__ops(assertion_value, index, &elem) {
+                            match self.assertions__ops(assertion_value, index, &elem) {
                                 Some(value) => {
                                     if value {
                                         let mut result = HashMap::new();
-                                        if test_case.name == validation.name {
+                                        if test_case.name == validation.name {};
 
-                                        };
-
-                                        /// Need to speak to Darius 
-                                        /// Not sure if tests and validations 
-                                        /// are in same order
-                                        /// 
-                                        /// 
-                                        /// 
-
-                                        // assert_eq!(assertion_name, validation_name, "")
+                                    // / Need to speak to Darius
+                                    // / Not sure if tests and validations
+                                    // / are in same order
+                                    // assert_eq!(assertion_name, validation_name, "")
                                     // result.insert(tes, v: V)
                                     // test_results.push()
                                     } else {
-
                                     }
                                 }
                                 None => {}
@@ -115,8 +109,8 @@ impl RuleSpec {
         }
     }
 
-    fn test_assertions__ops(
-        self,
+    fn assertions_ops(
+        &self,
         assertion_value: &str,
         assertion_index: usize,
         elem: &String,
@@ -134,7 +128,7 @@ impl RuleSpec {
                 let ref assertion_value = test_case.assertEquals.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
-                test_fns::test_equals(&current_value, &expected_value, &elem);
+                test_fns::test_equals(&current_value, &expected_value, &elem)
             }
             "assertNotEquals" => {
                 let ref test_case = &self.tests[assertion_index];
@@ -144,7 +138,7 @@ impl RuleSpec {
                 match test_fns::test_equals(&current_value, &expected_value, &elem) {
                     Some(true) => Some(false),
                     Some(false) => Some(true),
-                    None => {}
+                    None => None,
                 }
             }
             "assertGreaterThan" => {
@@ -152,13 +146,14 @@ impl RuleSpec {
                 let ref assertion_value = test_case.assertGreaterThan.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
-                test_fns::test_greater_than(&current_value, &expected_value, &elem);
+                test_fns::test_greater_than(&current_value, &expected_value, &elem)
             }
             "assertLessThan" => {
                 let ref test_case = &self.tests[assertion_index];
                 let ref assertion_value = test_case.assertLessThan.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
+
                 test_fns::test_less_than(&current_value, &expected_value, &elem)
             }
             "assertGreaterThanOrEquals" => {
@@ -169,9 +164,9 @@ impl RuleSpec {
                 let eq = test_fns::test_equals(&current_value, &expected_value, &elem).unwrap();
                 let gt = test_fns::test_greater_than(current_value, expected_value, &elem).unwrap();
                 if eq || gt {
-                    Some(true);
+                    return Some(true);
                 } else {
-                    Some(false);
+                    return Some(false);
                 }
             }
             "assertNotGreaterThan" => {
@@ -181,9 +176,9 @@ impl RuleSpec {
                 let ref expected_value = &assertion_value[1];
                 let gt = test_fns::test_greater_than(current_value, expected_value, &elem).unwrap();
                 if gt {
-                    Some(false);
+                    return Some(false);
                 } else {
-                    Some(true);
+                    return Some(true);
                 }
             }
             "assertLessThanOrEquals" => {
@@ -194,9 +189,9 @@ impl RuleSpec {
                 let eq = test_fns::test_equals(&current_value, &expected_value, &elem).unwrap();
                 let lt = test_fns::test_less_than(current_value, expected_value, &elem).unwrap();
                 if eq || lt {
-                    Some(true);
+                    return Some(true);
                 } else {
-                    Some(false);
+                    return Some(false);
                 }
             }
             "assertNull" => {
@@ -204,7 +199,7 @@ impl RuleSpec {
                 let ref assertion_value = test_case.assert.as_ref().unwrap();
                 let ref current_value = &assertion_value[0];
                 let ref expected_value = &assertion_value[1];
-                test_fns::test_equals(&current_value, &expected_value, &elem);
+                test_fns::test_equals(&current_value, &expected_value, &elem)
             }
             "assertNotNull" => {
                 let ref test_case = &self.tests[assertion_index];
@@ -213,22 +208,20 @@ impl RuleSpec {
                 let ref expected_value = &assertion_value[1];
                 match test_fns::test_equals(&current_value, &expected_value, &elem) {
                     Some(true) => Some(false),
-                    None => Some(()),
+                    Some(false ) => Some(true),
                 }
             }
             _ => None,
         }
     }
 
-    fn spec_globals(self, variable_name: &str, index: usize) {
-        let ref test = self.tests[index].as_ref().unwrap();
-        if test.co .contains_key("Les Misérables") {
-            println!("We've got {} reviews, but Les Misérables ain't one.",
-                     book_reviews.len());
+    fn find_global_var(&self, variable_name: &str, index: usize) -> Option<String>{
+        let ref test = &self.tests[index];
+        let ref test_let = &test.r#let.as_ref().unwrap();
+        if !test_let.contains_key(variable_name) {
+            return None;
         }
-        match variable_name {
-
-        }
+        match variable_name {}
     }
 }
 fn default_hidden() -> bool {
