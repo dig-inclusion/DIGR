@@ -80,7 +80,7 @@ fn main() {
 
     let file = File::open(opts.rules).expect("Unable to open file, please remember file or folder argument with the -f option.");
 
-    let spec: RuleSpec = serde_yaml::from_reader(file).expect("There was an error parsing RuleSpec");
+    let spec: rules_spec::RuleSpec = serde_yaml::from_reader(file).expect("There was an error parsing RuleSpec");
 
 	// println!("{:?}", spec);
 	
