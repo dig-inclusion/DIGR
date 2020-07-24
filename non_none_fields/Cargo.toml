@@ -5,7 +5,7 @@ authors = ["the DIGR authors"]
 edition = "2018"
 
 [dependencies]
-syn = { version = "1.0.33", features = ["full", "parsing", "extra-traits"] }
+syn = { version = "1.0.35", features = ["full", "parsing", "extra-traits"] }
 quote = "1.0.7"
 
 [lib]
