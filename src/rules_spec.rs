@@ -9,7 +9,7 @@ const NULL: &str = "null";
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize, NonNoneFields)]
-struct TestValue {
+pub struct TestValue {
     pub name: String,
     pub r#if: Option<Vec<String>>,
     pub r#let: Option<HashMap<String, String>>,
@@ -39,10 +39,10 @@ struct TestValue {
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
-struct ValidationValue {
-    name: String,
-    case: String,
-    assert: String,
+pub struct ValidationValue {
+    pub name: String,
+    pub case: String,
+    pub assert: String,
 }
 
 #[allow(non_snake_case)]
@@ -57,12 +57,19 @@ pub struct RuleSpec {
     pub validations: Vec<ValidationValue>,
 }
 
+struct OpsResult<'a> {
+    name: &'a str,
+    test_op:  &'a str,
+    assertion_op: &'a str,
+}
+
 impl RuleSpec {
-    fn rules_ops(&self, elem: &String, selector: &Selector, fragment: &Html) {
+    pub fn rules_ops(&self, selector: &Selector, fragment: &Html) {
         for mut test_c in &mut self.tests.iter() {
             let test_case = &mut test_c;
             let fields = test_case.non_none_fields();
-            let mut test_results: Vec<HashMap<String, String>> = vec![];
+            let ts_len = self.tests.len();
+            let mut test_results: vec![OpsResult; ts_len] = [];
             for &field in fields.iter() {
                 println!("{}", field);
 
@@ -72,22 +79,43 @@ impl RuleSpec {
                         let ref var_name = &rule_value[0];
                         let ref expected_value = &rule_value[1];
                         for element in fragment.select(&selector) {
+                            let res: OpsResult;
                             match self.find_var(&var_name, test_case, &fragment, &element) {
                                 Some(var_value) => {
-                                    if &&var_value == expected_value {
+                                    let test_op_res = &&var_value == expected_value;
+                                    if test_op_res {
                                         if let Some(val) = self.assertions_ops(&fragment, &element, test_case, &fields) {
-                                            
-
+                                            res.name = &test_c.name;
+                                            res.test_op = "pass";
+                                            res.assertion_op = "pass";
+                                            test_results.push(res);
+                                            continue;
                                         }
-
+                                        res.name = &test_c.name;
+                                        res.test_op = "pass";
+                                        res.assertion_op = "fail";
+                                        test_results.push(res);
+                                        continue;
                                     }
+                                    res.name = &test_c.name;
+                                    res.test_op = "fail";
+                                    res.assertion_op = "_";
+                                    test_results.push(res);
+                                    continue;
                                 },
                                 None => {
-
+                                    res.name = &test_c.name;
+                                    res.test_op = "_";
+                                    res.assertion_op = "_";
+                                    test_results.push(res);
+                                    continue;
                                 },
                             }
                         }
-                    }
+                    },
+                    "ifEquals" => {
+
+                    },
                     _ => continue,
                 }
             }
@@ -111,7 +139,7 @@ impl RuleSpec {
                     res = Some(result);
                 },
                 "assertEquals" => {
-                    let ref assertion_value = test_case.assert.as_ref().unwrap();
+                    let ref assertion_value = test_case.assertEquals.as_ref().unwrap();
                     let ref var_name = &assertion_value[0];
                     let ref expected_value = &assertion_value[1];
                     let var_value = match self.find_var(&var_name, test_case, &fragment, &element) {
@@ -253,7 +281,7 @@ impl RuleSpec {
                 &query.remove(0);
                 &query.pop();
             }
-            let mut counter: u8 = 0;
+            let counter: &mut u8 = &mut 0u8;
             // "innerText" ex. $count{*[innerText=$innerText]}
             let is_inner_text_query =  query.contains(default_vars[2].to_owned().remove(0));
             let eq_index = &query.find(eq).unwrap();
@@ -291,7 +319,8 @@ impl RuleSpec {
                     return Some(counter.to_string());
                 }
                 if *self.innerText(&element) == inner_text_match.clone() {
-                    counter = counter + 1;
+                    let n = 1u8;
+                    *counter = *counter + n;
                 }
                 return Some(counter.to_string());
             }
@@ -358,21 +387,28 @@ impl RuleSpec {
     }
 
     /// Counts all matching innerTexts with an increment counter and innerText matcher
-    fn count_all_inner_text_match(&self, mut counter: u8, element: &ElementRef, inner_text_match: &String) {
+    fn count_all_inner_text_match(&self, counter: &mut u8, element: &ElementRef, inner_text_match: &String) {
         let elem_inner_text = self.innerText(&element);
         if &elem_inner_text == inner_text_match {
-            counter = counter + 1;  
+            let n = 1u8;
+            *counter = *counter + n;  
         }
         if element.has_children(){
             match &element.first_child() {
-                Some(node_ref) => self.count_all_inner_text_match(counter, &ElementRef { node: *node_ref }, &inner_text_match),
-                None => self.count_all_inner_text_match(counter, &element, &inner_text_match)
+                Some(node_ref) => {
+                    let nxt_el = ElementRef::wrap(*node_ref).unwrap();
+                    self.count_all_inner_text_match(counter, &nxt_el, &inner_text_match)
+                },
+                None => ()
             }
         }
         if element.has_siblings(){
             match &element.next_sibling() {
-                Some(node_ref) => self.count_all_inner_text_match(counter, &ElementRef { node: *node_ref }, &inner_text_match),
-                None => self.count_all_inner_text_match(counter, &element, &inner_text_match),
+                Some(node_ref) => {
+                    let nxt_el = ElementRef::wrap(*node_ref).unwrap();
+                    self.count_all_inner_text_match(counter, &nxt_el, &inner_text_match)
+                },
+                None => ()
             }
         }
     }
@@ -382,10 +418,3 @@ impl RuleSpec {
 fn default_hidden() -> bool {
     false
 }
-
-
-// if element.has_siblings() {
-//     if let Some(node_ref) = match &element.next_sibling() {
-//         self.count_all_inner_text_match(&counter, &ElementRef { node: *node_ref }, &inner_text_match),
-//     }
-// }

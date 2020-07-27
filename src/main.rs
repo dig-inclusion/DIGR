@@ -26,52 +26,6 @@ struct Arguments {
 }
 
 
-// Function for html tags operations
-fn tag_ops(fragment: &Html, tag: &std::string::String) {
-
-    let selector = Selector::parse(&tag).expect("Invalid CSS selector.");
-    // for element in fragment.select(&selector) {
-
-    //     println!("{:?}", element.value().name);
-
-        
-    // }
-    fragment.select(&selector).for_each(|element| { 
-            let name = &element.value().name;
-            print!("{:?}", name);
-        });
-}
-
-//
-// Function for attributes operations
-fn attr_ops(index: usize, fragment: &Html, tag: &std::string::String) {
-
-    let tg = tag.replace(&['(', '*', ']', '\''][..], "");
-    
-    let (first, last) = tg.split_at(index);
-    
-    let mut attrib = first.to_string();
-    attrib.push(']');
-
-    let l = &last.replace('=', "");
-    let attr_name: &str = &l;
-
-    let selector = Selector::parse(&tg).expect("Invalid CSS selector.");
-    // for element in fragment.select(&selector) {
-
-    //     for elem in &element.value().attr(attr_name) {
-    //         println!("{:?}", elem);
-
-    //     }
-        
-    // }
-
-    fragment.select(&selector).for_each(|element| { 
-            let elem = element.value().attr(attr_name).unwrap();
-            print!("{:?}", elem);
-        });
-}
-
 fn main() {
     let opts = Arguments::from_args();
     let site_url: &str = &opts.url;
@@ -80,7 +34,7 @@ fn main() {
 
     let file = File::open(opts.rules).expect("Unable to open file, please remember file or folder argument with the -f option.");
 
-    let spec: rules_spec::RuleSpec = serde_yaml::from_reader(file).expect("There was an error parsing RuleSpec");
+    let spec: rules_spec::RuleSpec = serde_yaml::from_reader(file).expect("There was an error parsing rules file.");
 
 	// println!("{:?}", spec);
 	
@@ -101,13 +55,11 @@ fn main() {
         let fragment = Html::parse_fragment(page_slice);
         
         for tag in spec.on.iter() {
-
-            let is_index = tag.find("=");
-
-            match is_index {
-                Some(index) => attr_ops(index, &fragment, tag),
-                None => tag_ops(&fragment, tag),
+            let selector = match Selector::parse(tag) {
+                Ok(s) => s,
+                Err(_) => Selector::parse("h3.nil").unwrap() // this isn't but a work around
             };
+            spec.rules_ops(&selector, &fragment)
 
         }
 	});
