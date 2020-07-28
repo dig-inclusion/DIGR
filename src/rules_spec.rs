@@ -114,7 +114,43 @@ impl RuleSpec {
                         }
                     },
                     "ifEquals" => {
-
+                        let rule_value = test_case.ifEquals.as_ref().unwrap();
+                        let ref var_name = &rule_value[0];
+                        let ref expected_value = &rule_value[1];
+                        for element in fragment.select(&selector) {
+                            let res: OpsResult;
+                            match self.find_var(&var_name, test_case, &fragment, &element) {
+                                Some(var_value) => {
+                                    let test_op_res = &&var_value == expected_value;
+                                    if test_op_res {
+                                        if let Some(val) = self.assertions_ops(&fragment, &element, test_case, &fields) {
+                                            res.name = &test_c.name;
+                                            res.test_op = "pass";
+                                            res.assertion_op = "pass";
+                                            test_results.push(res);
+                                            continue;
+                                        }
+                                        res.name = &test_c.name;
+                                        res.test_op = "pass";
+                                        res.assertion_op = "fail";
+                                        test_results.push(res);
+                                        continue;
+                                    }
+                                    res.name = &test_c.name;
+                                    res.test_op = "fail";
+                                    res.assertion_op = "_";
+                                    test_results.push(res);
+                                    continue;
+                                },
+                                None => {
+                                    res.name = &test_c.name;
+                                    res.test_op = "_";
+                                    res.assertion_op = "_";
+                                    test_results.push(res);
+                                    continue;
+                                },
+                            }
+                        }
                     },
                     _ => continue,
                 }
