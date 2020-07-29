@@ -21,7 +21,6 @@ pub fn test_less_than(actual: &String, expected: &String) -> bool {
     return false;
 }
 
-
 // pub fn assert_or_assert_equals(current_value: &String, expected_value: &String, elem: &String) ->  Option<()> {
 
 //     assert!(current_value == CURR_VARIABLE, "Unexpected test case element {}", current_value);
