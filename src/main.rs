@@ -25,39 +25,29 @@ struct Arguments {
 	depth: u8,
 }
 
-
 fn main() {
     let opts = Arguments::from_args();
     let site_url: &str = &opts.url;
 
-    // println!("{} \n {:?}", site_url, opts);
-
     let file = File::open(opts.rules).expect("Unable to open file, please remember file or folder argument with the -f option.");
-
     let spec: rules_spec::RuleSpec = serde_yaml::from_reader(file).expect("There was an error parsing rules file.");
-
-	// println!("{:?}", spec);
 	
 	smol::run(async {
-
 		let body = surf::get(site_url)
 			.recv_string().await
             .map_err(Error::msg);
-
-		// println!("Site html: {:?}", body);
 
 		let b = match body {
 			Ok(html) => html,
 			Err(error) => panic!("Problem accessing the url: {:?}", error),
 		};
-
 		let page_slice: &str = &b;
         let fragment = Html::parse_fragment(page_slice);
         
         for tag in spec.on.iter() {
             let selector = match Selector::parse(tag) {
                 Ok(s) => s,
-                Err(_) => Selector::parse("h3.nil").unwrap() // this isn't but a work around
+                Err(_) => Selector::parse("h3.nil").unwrap() // this isn't ideal but a work around
             };
             spec.rules_ops(&selector, &fragment)
 
