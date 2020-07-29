@@ -569,9 +569,114 @@ impl RuleSpec {
                             continue;                            
                         }
                     },
-                    "" => {
-
+                    "ifNotNull" => {
+                        let var_name = test_case.ifNotNull.as_ref().unwrap();
+                        for element in fragment.select(&selector) {
+                            let res: OpsResult;                                    
+                            let var_res = match self.find_var(&var_name, test_case, &fragment, &element) {
+                                Some(v) => v,
+                                None => NULL.to_owned()
+                            };
+                            if var_res != NULL {
+                                match self.assertions_ops(&fragment, &element, test_case, &fields) {
+                                    Some(val) => {
+                                        if val {
+                                            res = OpsResult{
+                                                name: test_case.name.to_string(),
+                                                test_op: passed.to_owned(),
+                                                assertion_op: passed.to_owned()
+                                            };
+                                            test_results.push(res);
+                                            continue;
+                                        }
+                                        res = OpsResult{
+                                            name: test_case.name.to_string(),
+                                            test_op: passed.to_owned(),
+                                            assertion_op: failed.to_owned()
+                                        };
+                                        test_results.push(res);
+                                        continue;
+                                    }
+                                    None => {
+                                        res = OpsResult{
+                                            name: test_case.name.to_string(),
+                                            test_op: passed.to_owned(),
+                                            assertion_op: nothing.to_owned()
+                                        };
+                                        test_results.push(res);
+                                        continue;
+                                    }
+                                }
+                            }
+                            res = OpsResult{
+                                name: test_case.name.to_string(),
+                                test_op: nothing.to_owned(),
+                                assertion_op: nothing.to_owned()
+                            };
+                            test_results.push(res);
+                            continue;                            
+                        }
                     },
+                    "ifIncludes" => {
+                        let rule_value = test_case.ifLessThanOrEquals.as_ref().unwrap();
+                        let var_name = &rule_value[0];
+                        let expected_value = &rule_value[1];
+                        for element in fragment.select(&selector) {
+                            let res: OpsResult;                                    
+                            match self.find_var(&var_name, test_case, &fragment, &element) {
+                                Some(var_value) => {
+                                    let test_op_res = var_value.contains(expected_value);
+                                    if test_op_res {
+                                        match self.assertions_ops(&fragment, &element, test_case, &fields) {
+                                            Some(val) => {
+                                                if val {
+                                                    res = OpsResult{
+                                                        name: test_case.name.to_string(),
+                                                        test_op: passed.to_owned(),
+                                                        assertion_op: passed.to_owned()
+                                                    };
+                                                    test_results.push(res);
+                                                    continue;
+                                                }
+                                                res = OpsResult{
+                                                    name: test_case.name.to_string(),
+                                                    test_op: passed.to_owned(),
+                                                    assertion_op: failed.to_owned()
+                                                };
+                                                test_results.push(res);
+                                                continue;
+                                            }
+                                            None => {
+                                                res = OpsResult{
+                                                    name: test_case.name.to_string(),
+                                                    test_op: passed.to_owned(),
+                                                    assertion_op: nothing.to_owned()
+                                                };
+                                                test_results.push(res);
+                                                continue;
+                                            }
+                                        }
+                                    }
+                                    res = OpsResult{
+                                        name: test_case.name.to_string(),
+                                        test_op: failed.to_owned(),
+                                        assertion_op: nothing.to_owned()
+                                    };
+                                    test_results.push(res);
+                                    continue;
+                                },
+                                None => {
+                                    res = OpsResult{
+                                        name: test_case.name.to_string(),
+                                        test_op: nothing.to_owned(),
+                                        assertion_op: nothing.to_owned()
+                                    };
+                                    test_results.push(res);
+                                    continue;
+                                },
+                            }
+                        }
+                    }
                     _ => continue,
                 }
             }
