@@ -50,8 +50,9 @@ fn main() {
                 Err(_) => Selector::parse("h3.nil").unwrap() // this isn't ideal but a work around
             };
             let test_result = spec.rules_ops(&selector, &fragment);
+            println!("{}", tag);
             for res_op in test_result.iter() {
-                println!("{:}", res_op);
+                println!("{:?}", res_op);
             }
         }
 	});

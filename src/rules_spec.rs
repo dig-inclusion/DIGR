@@ -879,7 +879,8 @@ impl RuleSpec {
         fragment: &Html,
         element: &ElementRef,
     ) -> Option<String> {
-        let test_let = test_case.r#let.as_ref().unwrap();
+        let contains_rlet = test_case.non_none_fields().contains(&"r#let");
+        let contains_let = test_case.non_none_fields().contains(&"let");
         let default_vars: [&str; 4] = ["$element", "$count", "$innerText", "$attributes"];
         let eq = "=";
         // &element
@@ -917,18 +918,30 @@ impl RuleSpec {
                 // At this point second should be == $innerText or some defined variable with let
                 let inner_text_match = if second == default_vars[2] {
                     self.innerText(element)
-                } else if test_let.contains_key(&second) {
-                    let v = match test_let.get(&second) {
-                        Some(v) => {
-                            let nw = v.to_owned();
-                            nw
-                        }
-                        None => {
-                            let n = "null".to_owned().clone();
-                            n
-                        }
-                    };
-                    v
+                } else if contains_rlet || contains_let {
+                    let spec_let = test_case.r#let.as_ref().unwrap();
+                    if spec_let.contains_key(&second) {
+                        let v = match spec_let.get(&second) {
+                            Some(v) => {
+                                let nw = v.to_owned();
+                                nw
+                            }
+                            None => {
+                                let n = "null".to_owned().clone();
+                                n
+                            }
+                        };
+                        v
+                    } else {
+                        let v = match self.find_var(&second, test_case, &fragment, &element) {
+                            Some(v) => v.to_owned(),
+                            None => {
+                                let n = NULL.to_owned().clone();
+                                n
+                            }
+                        };
+                        v
+                    }
                 } else {
                     let v = match self.find_var(&second, test_case, &fragment, &element) {
                         Some(v) => v.to_owned(),
@@ -956,12 +969,21 @@ impl RuleSpec {
             if is_attributes_query {
                 let attribute_value = if second.contains(default_vars[3]) {
                     self.attributes(&second, &element).to_owned()
-                } else if test_let.contains_key(&second) {
-                    let v = match test_let.get(&second) {
-                        Some(v) => String::from(v),
-                        None => String::from(NULL),
-                    };
-                    v
+                } else if contains_rlet || contains_let {
+                    let spec_let = test_case.r#let.as_ref().unwrap();
+                    if spec_let.contains_key(&second) {
+                        let v = match spec_let.get(&second) {
+                            Some(v) => String::from(v),
+                            None => String::from(NULL),
+                        };
+                        v
+                    } else {
+                        let v = match self.find_var(&second, test_case, &fragment, &element) {
+                            Some(v) => v.to_owned(),
+                            None => String::from(NULL),
+                        };
+                        v 
+                    }
                 } else {
                     let v = match self.find_var(&second, test_case, &fragment, &element) {
                         Some(v) => v.to_owned(),
@@ -983,22 +1005,25 @@ impl RuleSpec {
 
         // attributes
         if spec_expr.contains(&default_vars[3]) {
-            let eq_index = &spec_expr.find(eq).unwrap();
-            let mut expr = spec_expr.replace(eq, "");
-            let attrib = expr
-                .split_off(*eq_index)
-                .replace(&default_vars[3], "")
-                .replace(&['[', ']'][..], "");
-            return Some(self.attributes(&attrib, element).to_owned());
+            // let eq_index = &spec_expr.find(eq).unwrap();
+            // let mut expr = spec_expr.replace(eq, "");
+
+            // let attrib = spec_expr
+            //     .replace(&default_vars[3], "")
+            //     .replace(&['[', ']'][..], "");
+            return Some(self.attributes(&spec_expr, element).to_owned());
         }
 
         // let
         let key = &spec_expr.to_owned();
-        if test_let.contains_key(key) {
-            return match test_let.get(key) {
-                Some(v) => self.find_var(v, test_case, &fragment, &element),
-                None => None,
-            };
+        if contains_rlet || contains_let {
+            let spec_let = test_case.r#let.as_ref().unwrap();
+            if spec_let.contains_key(key) {
+                return match spec_let.get(key) {
+                    Some(v) => self.find_var(v, test_case, &fragment, &element),
+                    None => None,
+                };
+            }
         }
         None
     }
