@@ -890,7 +890,7 @@ impl RuleSpec {
         }
         // &innerText
         if &spec_expr == &default_vars[2] {
-            return Some(self.innerText(element).to_string());
+            return Some(self.inner_text(element).to_string());
         }
         // &count
         if spec_expr.contains(&default_vars[1]) {
@@ -917,7 +917,7 @@ impl RuleSpec {
             if is_inner_text_query {
                 // At this point second should be == $innerText or some defined variable with let
                 let inner_text_match = if second == default_vars[2] {
-                    self.innerText(element)
+                    self.inner_text(element)
                 } else if contains_rlet || contains_let {
                     let spec_let = test_case.r#let.as_ref().unwrap();
                     if spec_let.contains_key(&second) {
@@ -957,7 +957,7 @@ impl RuleSpec {
                     self.count_all_inner_text_match(counter, &root_element, &inner_text_match);
                     return Some(counter.to_string());
                 }
-                if *self.innerText(&element) == inner_text_match.clone() {
+                if *self.inner_text(&element) == inner_text_match.clone() {
                     let n = 1u8;
                     *counter = *counter + n;
                 }
@@ -1028,7 +1028,7 @@ impl RuleSpec {
         None
     }
 
-    fn innerText(&self, element: &ElementRef) -> String {
+    fn inner_text(&self, element: &ElementRef) -> String {
         element.text().collect::<String>()
     }
 
@@ -1050,7 +1050,7 @@ impl RuleSpec {
         element: &ElementRef,
         inner_text_match: &String,
     ) {
-        let elem_inner_text = self.innerText(&element);
+        let elem_inner_text = self.inner_text(&element);
         if &elem_inner_text == inner_text_match {
             let n = 1u8;
             *counter = *counter + n;
