@@ -11,8 +11,8 @@ mod test_fns;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
-    name = "digr",
-    about = "an automated accessibility test runner based on rules"
+    name = "DIGR",
+    about = "An automated accessibility test runner based on rules"
 )]
 struct Arguments {
     #[structopt(short = "r", long = "rules", help = "Rules folder")]
