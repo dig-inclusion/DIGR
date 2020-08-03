@@ -92,12 +92,27 @@ impl RuleSpec {
                     "if" => {
                         let rule_value = test_case.r#if.as_ref().unwrap();
                         let var_name = &rule_value[0];
-                        let expected_value = &rule_value[1];
+                        let expected_var = &rule_value[1];
                         for element in fragment.select(&selector) {
                             match self.find_var(&var_name, test_case, &fragment, &element) {
                                 Some(var_value) => {
-                                    let test_op_res = &var_value == expected_value;
-                                    let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                                    let expected_value = match self.find_var(
+                                        &expected_var,
+                                        test_case,
+                                        &fragment,
+                                        &element,
+                                    ) {
+                                        Some(v) => v,
+                                        None => expected_var.to_string(),
+                                    };
+                                    let test_op_res = var_value == expected_value;
+                                    let res = self.test_op_sequence(
+                                        test_op_res,
+                                        &fragment,
+                                        &element,
+                                        test_case,
+                                        &fields,
+                                    );
                                     test_results.push(res);
                                     continue;
                                 }
@@ -116,12 +131,27 @@ impl RuleSpec {
                     "ifEquals" => {
                         let rule_value = test_case.ifEquals.as_ref().unwrap();
                         let var_name = &rule_value[0];
-                        let expected_value = &rule_value[1];
+                        let expected_var = &rule_value[1];
                         for element in fragment.select(&selector) {
                             match self.find_var(&var_name, test_case, &fragment, &element) {
                                 Some(var_value) => {
-                                    let test_op_res = &var_value == expected_value;
-                                    let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                                    let expected_value = match self.find_var(
+                                        &expected_var,
+                                        test_case,
+                                        &fragment,
+                                        &element,
+                                    ) {
+                                        Some(v) => v,
+                                        None => expected_var.to_string(),
+                                    };
+                                    let test_op_res = var_value == expected_value;
+                                    let res = self.test_op_sequence(
+                                        test_op_res,
+                                        &fragment,
+                                        &element,
+                                        test_case,
+                                        &fields,
+                                    );
                                     test_results.push(res);
                                     continue;
                                 }
@@ -140,12 +170,27 @@ impl RuleSpec {
                     "ifNotEquals" => {
                         let rule_value = test_case.ifNotEquals.as_ref().unwrap();
                         let var_name = &rule_value[0];
-                        let expected_value = &rule_value[1];
+                        let expected_var = &rule_value[1];
                         for element in fragment.select(&selector) {
                             match self.find_var(&var_name, test_case, &fragment, &element) {
                                 Some(var_value) => {
-                                    let test_op_res = &var_value != expected_value;
-                                    let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                                    let expected_value = match self.find_var(
+                                        &expected_var,
+                                        test_case,
+                                        &fragment,
+                                        &element,
+                                    ) {
+                                        Some(v) => v,
+                                        None => expected_var.to_string(),
+                                    };
+                                    let test_op_res = var_value != expected_value;
+                                    let res = self.test_op_sequence(
+                                        test_op_res,
+                                        &fragment,
+                                        &element,
+                                        test_case,
+                                        &fields,
+                                    );
                                     test_results.push(res);
                                     continue;
                                 }
@@ -164,23 +209,29 @@ impl RuleSpec {
                     "ifGreaterThan" => {
                         let rule_value = test_case.ifGreaterThan.as_ref().unwrap();
                         let var_name = &rule_value[0];
-                        let expected_value = &rule_value[1];
+                        let expected_var = &rule_value[1];
                         for element in fragment.select(&selector) {
                             match self.find_var(&var_name, test_case, &fragment, &element) {
                                 Some(var_value) => {
-                                    let exp_val = match self.find_var(
-                                        &expected_value,
+                                    let expected_value = match self.find_var(
+                                        &expected_var,
                                         test_case,
                                         &fragment,
                                         &element,
                                     ) {
                                         Some(v) => v,
-                                        None => expected_value.to_string(),
+                                        None => expected_var.to_string(),
                                     };
                                     let actual: u8 = var_value.parse().unwrap();
-                                    let expected: u8 = exp_val.parse().unwrap();
+                                    let expected: u8 = expected_value.parse().unwrap();
                                     let test_op_res = actual > expected;
-                                    let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                                    let res = self.test_op_sequence(
+                                        test_op_res,
+                                        &fragment,
+                                        &element,
+                                        test_case,
+                                        &fields,
+                                    );
                                     test_results.push(res);
                                     continue;
                                 }
@@ -215,7 +266,13 @@ impl RuleSpec {
                                     let actual: u8 = var_value.parse().unwrap();
                                     let expected: u8 = exp_val.parse().unwrap();
                                     let test_op_res = actual < expected;
-                                    let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                                    let res = self.test_op_sequence(
+                                        test_op_res,
+                                        &fragment,
+                                        &element,
+                                        test_case,
+                                        &fields,
+                                    );
                                     test_results.push(res);
                                     continue;
                                 }
@@ -250,7 +307,13 @@ impl RuleSpec {
                                     let actual: u8 = var_value.parse().unwrap();
                                     let expected: u8 = exp_val.parse().unwrap();
                                     let test_op_res = actual >= expected;
-                                    let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                                    let res = self.test_op_sequence(
+                                        test_op_res,
+                                        &fragment,
+                                        &element,
+                                        test_case,
+                                        &fields,
+                                    );
                                     test_results.push(res);
                                     continue;
                                 }
@@ -285,7 +348,13 @@ impl RuleSpec {
                                     let actual: u8 = var_value.parse().unwrap();
                                     let expected: u8 = exp_val.parse().unwrap();
                                     let test_op_res = actual <= expected;
-                                    let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                                    let res = self.test_op_sequence(
+                                        test_op_res,
+                                        &fragment,
+                                        &element,
+                                        test_case,
+                                        &fields,
+                                    );
                                     test_results.push(res);
                                     continue;
                                 }
@@ -310,7 +379,13 @@ impl RuleSpec {
                                     None => NULL.to_owned(),
                                 };
                             let test_op_res = var_res == NULL;
-                            let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                            let res = self.test_op_sequence(
+                                test_op_res,
+                                &fragment,
+                                &element,
+                                test_case,
+                                &fields,
+                            );
                             test_results.push(res);
                             continue;
                         }
@@ -323,21 +398,42 @@ impl RuleSpec {
                                     Some(v) => v,
                                     None => NULL.to_owned(),
                                 };
-                                let test_op_res = var_res != NULL;
-                                let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
-                                test_results.push(res);
-                                continue;
+                            let test_op_res = var_res != NULL;
+                            let res = self.test_op_sequence(
+                                test_op_res,
+                                &fragment,
+                                &element,
+                                test_case,
+                                &fields,
+                            );
+                            test_results.push(res);
+                            continue;
                         }
                     }
                     "ifIncludes" => {
                         let rule_value = test_case.ifLessThanOrEquals.as_ref().unwrap();
                         let var_name = &rule_value[0];
-                        let expected_value = &rule_value[1];
+                        let expected_var = &rule_value[1];
                         for element in fragment.select(&selector) {
                             match self.find_var(&var_name, test_case, &fragment, &element) {
                                 Some(var_value) => {
-                                    let test_op_res = var_value.contains(expected_value);
-                                    let res = self.test_op_sequence(test_op_res, &fragment, &element, test_case, &fields);
+                                    let expected_value = match self.find_var(
+                                        &expected_var,
+                                        test_case,
+                                        &fragment,
+                                        &element,
+                                    ) {
+                                        Some(v) => v,
+                                        None => expected_var.to_string(),
+                                    };
+                                    let test_op_res = var_value.contains(&expected_value);
+                                    let res = self.test_op_sequence(
+                                        test_op_res,
+                                        &fragment,
+                                        &element,
+                                        test_case,
+                                        &fields,
+                                    );
                                     test_results.push(res);
                                     continue;
                                 }
@@ -608,7 +704,7 @@ impl RuleSpec {
                             Some(v) => v.to_owned(),
                             None => String::from(NULL),
                         };
-                        v 
+                        v
                     }
                 } else {
                     let v = match self.find_var(&second, test_case, &fragment, &element) {
