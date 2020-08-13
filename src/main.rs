@@ -31,14 +31,13 @@ struct Arguments {
 fn main(){
     let opts = Arguments::from_args();
     let site_url: &str = &opts.url;
-
-    let md = metadata(opts.rules.clone()).unwrap();
+    let r = opts.rules.clone();
+    let md = metadata(r.clone()).unwrap();
     let is_file = md.is_file();
     let is_dir = md.is_dir();
 
     let file = File::open(opts.rules).expect("Unable to open file, please remember file or folder argument with the -r option.");
     let spec: rules_spec::RuleSpec = serde_yaml::from_reader(file).expect("There was an error parsing rules file.");
-    let r :&str = &opts.rules;
 
 	smol::run(async {
 		let body = surf::get(site_url)
@@ -54,14 +53,14 @@ fn main(){
         let rules_path = PathBuf::from(r);
 
         if is_file {
-c           let test_result = rules_path::file_op(rules_path, &spec.on, &fragment).await;
+            let test_result = rules_path::file_op(&rules_path, &spec.on, &fragment).await;
             for res_op in test_result.iter() {
                 println!("{:?}", res_op);
             }
         }
 
         if is_dir {
-            let test_result = rules_path::folder_op(rules_path, &spec.on, &fragment).await;
+            let test_result = rules_path::folder_op(&rules_path, &spec.on, &fragment).await;
             for res_op in test_result.iter() {
                 println!("{:?}", res_op);
             }
