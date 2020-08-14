@@ -1,2 +1,4 @@
 target
-testrules
+Cargo.lock
+tests/rust/*
+.vscode
