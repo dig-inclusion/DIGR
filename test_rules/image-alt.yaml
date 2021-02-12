@@ -1,0 +1,59 @@
+name: Img has an alt and it is not blank
+
+meta:
+  dig-ref: DIG001 
+
+on: [img, "*[role='img']"]
+
+includeHidden: false
+
+tests:
+  - name: blank 
+    if: [$element, img] 
+    assertNotNull: $attributes[alt] 
+
+  - name: empty
+    if: [$element, img]
+    assertNotEquals: ["$attributes[alt]", ""]
+
+  - name: arialabel
+    ifNotEquals: [$element, img] 
+    assertNotNull: $attributes[aria-label]
+    assertNotEquals: ["$attributes[aria-label]", ""]
+
+  - name: arialabelledby
+    ifNotEquals: [$element, img] 
+    assertNotNull: $attributes[aria-labelledby]
+    assertNotEquals: ["$attributes[aria-labelledby]", ""]
+
+validations:
+  - name: Standard - Blank 
+    case: <img src="image.png" />
+    assert: fail 
+  
+  - name: Standard - Empty
+    case: <img src="image.png" alt="" />
+    assert: fail
+
+  - name: Standard - Correct
+    case: <img src="image.png" alt="An orange on a table" />
+    assert: pass
+
+  - name: Role - Blank
+    case: <span role="img"></span>
+    assert: fail 
+  
+  - name: Role - aria-label
+    case: <span role="img" aria-label="An orange on a table"></span>
+    assert: pass
+
+  - name: Role - caption
+    case: | 
+      <span role="img" aria-labelledby="label">
+        <p id="label">An orange on a table</p>
+      </span>
+    assert: pass
+
+  - name: Not relevant
+    case: <p alt="">Irrelevant example</p>
+    assert: na
