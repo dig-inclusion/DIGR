@@ -1,0 +1,38 @@
+name: Link text is appropriate
+
+meta:
+  dig-ref: DIG1401
+
+on: [a, "*[role='link']"]
+
+includeHidden: false
+
+tests:
+  - name: clickhere
+    assertNotEquals: [$innerText, 'click here'] #case sensitive?
+    
+  - name: arialabel
+    ifNotNull: $attributes[aria-label]
+    assertNotEquals: ["$attributes[aria-label]", ""]
+  
+
+validations:
+  - name: Click here 
+    case: <a href="#">Click here</a> 
+    assert: fail
+  
+  - name: Empty aria-label
+    case: <a href="#" aria-label="">go to github</a>
+    assert: fail
+
+  - name: Correct - standard
+    case: <a href="#">Go to github</a>
+    assert: pass
+
+  - name: Correct - arialabel
+    case: <a href="#" aria-label="Go to github"></a>
+    assert: pass
+
+  - name: Not relevant
+    case: <p alt="">Irrelevant example</p>
+    assert: na
